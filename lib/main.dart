@@ -50,6 +50,30 @@ class _MahasiswaPageState extends State<MahasiswaPage> {
     });
   }
 
+  // TAHAP 5: DELETE dengan dialog konfirmasi.
+  Future<void> hapusData(Map<String, String> dipilih) async {
+    final setuju = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Hapus data?'),
+        content: Text('Hapus data mahasiswa ${dipilih['nama']} (NIM: ${dipilih['nim']})?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || setuju != true) return;
+    setState(() => mahasiswa.removeWhere((m) => m['id'] == dipilih['id']));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,10 +93,20 @@ class _MahasiswaPageState extends State<MahasiswaPage> {
                   child: ListTile(
                     title: Text(item['nama']!),
                     subtitle: Text('${item['prodi']} | ${item['nim']}'),
-                    trailing: IconButton(
-                      tooltip: 'Ubah Data',
-                      icon: const Icon(Icons.edit),
-                      onPressed: () => ubahData(item),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          tooltip: 'Ubah Data',
+                          icon: const Icon(Icons.edit),
+                          onPressed: () => ubahData(item),
+                        ),
+                        IconButton(
+                          tooltip: 'Hapus Data',
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => hapusData(item),
+                        ),
+                      ],
                     ),
                   ),
                 );
