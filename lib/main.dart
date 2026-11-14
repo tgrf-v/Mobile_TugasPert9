@@ -33,6 +33,23 @@ class _MahasiswaPageState extends State<MahasiswaPage> {
     });
   }
 
+  // TAHAP 4: UPDATE berdasarkan id, BUKAN indeks ListView.
+  Future<void> ubahData(Map<String, String> dipilih) async {
+    final hasil = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (_) => MahasiswaForm(
+        dataAwal: dipilih,
+        dataSudahAda: mahasiswa,
+      ),
+    );
+    if (!mounted || hasil == null) return;
+    final index = mahasiswa.indexWhere((m) => m['id'] == dipilih['id']);
+    if (index < 0) return;
+    setState(() {
+      mahasiswa[index] = {'id': dipilih['id']!, ...hasil};
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,6 +69,11 @@ class _MahasiswaPageState extends State<MahasiswaPage> {
                   child: ListTile(
                     title: Text(item['nama']!),
                     subtitle: Text('${item['prodi']} | ${item['nim']}'),
+                    trailing: IconButton(
+                      tooltip: 'Ubah Data',
+                      icon: const Icon(Icons.edit),
+                      onPressed: () => ubahData(item),
+                    ),
                   ),
                 );
               },
