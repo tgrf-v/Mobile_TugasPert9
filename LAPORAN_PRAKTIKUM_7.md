@@ -56,6 +56,9 @@ Praktikum ini berfokus pada pemahaman siklus hidup state dan implementasi operas
   1. *Apa hubungan `itemCount`, `index`, dan `mahasiswa[index]`?*  
      `itemCount` memberitahu Flutter berapa total elemen yang perlu disiapkan. Parameter `index` adalah nomor urut baris yang sedang dirender di layar (mulai dari 0 sampai `itemCount - 1`). Sedangkan `mahasiswa[index]` adalah operasi indexing untuk mengambil data map spesifik pada urutan tersebut guna diikat (*binding*) ke widget tampilan.
 
+![Gambar 1: Tampilan Awal Home Screen](screenshots/01_tampilan_awal_home.png)
+*Gambar 1: Tampilan awal antarmuka memuat data mahasiswa dari inisialisasi RAM beserta penghitung status tersimpan.*
+
 ---
 
 ### Tahap 3: Menambah Data (CREATE)
@@ -68,6 +71,12 @@ Praktikum ini berfokus pada pemahaman siklus hidup state dan implementasi operas
   2. *Apa fungsi `mounted`?*  
      `mounted` adalah properti boolean bawaan `State` yang menandakan apakah widget masih terpasang aktif pada pohon widget. Pengecekan `if (!mounted) return;` wajib dilakukan setelah operasi asinkron (`await`) sebelum memanggil `setState()` untuk mencegah runtime exception jika pengguna telah meninggalkan halaman saat proses asinkron berlangsung.
 
+![Gambar 2: Dialog Form Tambah Data](screenshots/02_dialog_form_tambah.png)
+*Gambar 2: Dialog form modal untuk memasukkan NIM, Nama Mahasiswa, dan Program Studi.*
+
+![Gambar 3: Validasi Form Input](screenshots/03_validasi_input_form.png)
+*Gambar 3: Pesan peringatan validasi form saat kolom wajib belum terisi dengan benar.*
+
 ---
 
 ### Tahap 4: Mengubah Data (UPDATE)
@@ -77,6 +86,9 @@ Praktikum ini berfokus pada pemahaman siklus hidup state dan implementasi operas
 - **Refleksi Wajib:**
   1. *Mengapa menggunakan `indexWhere` berdasarkan `id` lebih aman daripada menggunakan indeks tampilan?*  
      Indeks tampilan pada ListView dapat berubah drastis ketika data disaring (filter pencarian) atau diurutkan (sorting). Jika update dilakukan berdasar indeks tampilan, perubahan akan menimpa record yang salah pada list utama. Penggunaan `id` unik menjamin bahwa objek yang diperbarui di memori selalu tepat sasaran.
+
+![Gambar 4: Penambahan Data Mahasiswa Baru Berhasil](screenshots/04_penambahan_data_berhasil.png)
+*Gambar 4: Daftar bertambah dengan record baru ("Budi Santoso") dan total tersimpan otomatis menjadi 4.*
 
 ---
 
@@ -90,6 +102,9 @@ Praktikum ini berfokus pada pemahaman siklus hidup state dan implementasi operas
   2. *Apa yang dihapus sebenarnya, widget atau item List?*  
      Yang dihapus secara aktual adalah elemen Map di dalam objek `List` pada RAM. Hilangnya baris kartu dari antarmuka merupakan akibat dari `setState()` yang memicu render ulang `ListView.builder` berdasarkan list yang telah diperbarui.
 
+![Gambar 6: Dialog Konfirmasi Hapus Data](screenshots/06_dialog_konfirmasi_hapus.png)
+*Gambar 6: Dialog konfirmasi modal sebelum tindakan penghapusan dieksekusi.*
+
 ---
 
 ### Tahap 6: Pencarian Data (SEARCH)
@@ -99,6 +114,9 @@ Praktikum ini berfokus pada pemahaman siklus hidup state dan implementasi operas
 - **Refleksi Wajib:**
   1. *Mengapa pencarian tidak langsung menghapus elemen dari List asli?*  
      Pencarian adalah proyeksi visual sementara (*read-only filter*). Jika list asli dimodifikasi untuk keperluan pencarian, data lain yang tidak sesuai kata kunci akan terhapus permanen dari memori aplikasi.
+
+![Gambar 5: Pencarian Case-Insensitive](screenshots/05_pencarian_case_insensitive.png)
+*Gambar 5: Hasil pencarian kata kunci "siti" menampilkan record yang sesuai dan memperbarui indikator "Ditemukan: 1".*
 
 ---
 
@@ -126,11 +144,17 @@ Empat tantangan individual telah diselesaikan secara tuntas dan terintegrasi pad
   1. Tombol urut ditekan -> Urutan nama berubah menjadi terurut alfabetis.
   2. Mengedit salah satu record pada mode terurut -> Nilai terbarui pada ID yang sesuai tanpa merusak struktur data list asli.
 
+![Gambar 8: Pengurutan Nama A-Z](screenshots/08_pengurutan_nama_az.png)
+*Gambar 8: Mode pengurutan alfabetis aktif, daftar nama otomatis tersusun dari Budi Santoso, Siti, hingga Tegar Rifa'i.*
+
 ### Tantangan D: Fitur Pembatalan Penghapusan (Undo) via SnackBarAction
 - **Solusi:** Menyimpan indeks posisi asli (`indexAsli`) dan data yang dihapus (`itemTerhapus`) sebelum pemanggilan `removeWhere()`. Setelah penghapusan, ditampilkan `SnackBar` dengan aksi "BATALKAN" yang memanggil `mahasiswa.insert(indexAsli.clamp(0, mahasiswa.length), itemTerhapus)`.
 - **Kasus Uji:**
   1. Menghapus record Andi -> Muncul SnackBar "Data 'Andi' dihapus" dengan tombol "BATALKAN".
   2. Menekan tombol "BATALKAN" -> Record Andi kembali muncul pada posisi semula dengan status terverifikasi lengkap.
+
+![Gambar 7: Notifikasi SnackBar Undo](screenshots/07_notifikasi_snackbar_undo.png)
+*Gambar 7: Notifikasi SnackBar muncul di bagian bawah layar sesaat setelah data dihapus, menyediakan tombol BATALKAN.*
 
 ---
 
@@ -138,18 +162,18 @@ Empat tantangan individual telah diselesaikan secara tuntas dan terintegrasi pad
 
 Pengujian dijalankan melalui pengujian interaktif antarmuka dan otomatisasi *widget testing* (`flutter test`). Seluruh 10 kasus uji standar modul praktikum dinyatakan **Lulus (100% PASS)**:
 
-| No | Skenario Pengujian | Hasil yang Diharapkan | Hasil Aktual | Status |
-|:--:|:---|:---|:---|:---:|
-| 1 | Dua/Tiga data awal dimuat | Seluruh kartu mahasiswa awal muncul di layar | 3 kartu (Andi, Siti, Tegar Rifa'i) tampil sempurna | **LULUS** |
-| 2 | Submit form dengan NIM kosong | Form menolak dan memunculkan pesan validasi | Pesan "NIM wajib diisi" muncul di bawah field | **LULUS** |
-| 3 | Input NIM duplikat (misal 2026001) | Form menolak penyimpanan | Pesan "NIM sudah digunakan oleh mahasiswa lain" muncul | **LULUS** |
-| 4 | Tambah data dengan NIM unik | Dialog tertutup dan kartu baru bertambah | Kartu bertambah dan indikator tersimpan naik | **LULUS** |
-| 5 | Mengubah nama mahasiswa | Hanya nama record target yang berubah, NIM tetap | Nama diperbarui tanpa mengubah NIM record | **LULUS** |
-| 6 | Membatalkan dialog hapus data | Data tidak terhapus dan tetap berada di daftar | Record tetap utuh pada posisinya | **LULUS** |
-| 7 | Mengonfirmasi dialog hapus data | Record target terhapus dari daftar | Record dihapus dan indikator tersimpan berkurang | **LULUS** |
-| 8 | Pencarian kata kunci campuran `sItI` | Pencarian tidak membedakan huruf besar/kecil | Hanya record "Siti" yang ditampilkan | **LULUS** |
-| 9 | Mengubah data hasil pencarian | Pembaruan tersimpan pada record asli di memori | Record asli terbarui saat pencarian dikosongkan | **LULUS** |
-| 10 | Memulai ulang aplikasi dari awal | State kembali ke inisialisasi awal | Data runtime kembali ke data default RAM | **LULUS** |
+| No | Skenario Pengujian | Hasil yang Diharapkan | Hasil Aktual | Status | Tangkapan Layar |
+|:--:|:---|:---|:---|:---:|:---:|
+| 1 | Dua/Tiga data awal dimuat | Seluruh kartu mahasiswa awal muncul di layar | 3 kartu (Andi, Siti, Tegar Rifa'i) tampil sempurna | **LULUS** | Gambar 1 |
+| 2 | Submit form dengan NIM kosong | Form menolak dan memunculkan pesan validasi | Pesan "NIM wajib diisi" muncul di bawah field | **LULUS** | Gambar 3 |
+| 3 | Input NIM duplikat (misal 2026001) | Form menolak penyimpanan | Pesan "NIM sudah digunakan oleh mahasiswa lain" muncul | **LULUS** | Gambar 3 |
+| 4 | Tambah data dengan NIM unik | Dialog tertutup dan kartu baru bertambah | Kartu bertambah dan indikator tersimpan naik | **LULUS** | Gambar 4 |
+| 5 | Mengubah nama mahasiswa | Hanya nama record target yang berubah, NIM tetap | Nama diperbarui tanpa mengubah NIM record | **LULUS** | Gambar 4 |
+| 6 | Membatalkan dialog hapus data | Data tidak terhapus dan tetap berada di daftar | Record tetap utuh pada posisinya | **LULUS** | Gambar 6 |
+| 7 | Mengonfirmasi dialog hapus data | Record target terhapus dari daftar | Record dihapus dan indikator tersimpan berkurang | **LULUS** | Gambar 7 |
+| 8 | Pencarian kata kunci campuran `sItI` | Pencarian tidak membedakan huruf besar/kecil | Hanya record "Siti" yang ditampilkan | **LULUS** | Gambar 5 |
+| 9 | Mengubah data hasil pencarian | Pembaruan tersimpan pada record asli di memori | Record asli terbarui saat pencarian dikosongkan | **LULUS** | Gambar 5 |
+| 10 | Memulai ulang aplikasi dari awal | State kembali ke inisialisasi awal | Data runtime kembali ke data default RAM | **LULUS** | Gambar 1 |
 
 ---
 
@@ -190,4 +214,4 @@ Dalam pengerjaan tugas ini, kecerdasan buatan dimanfaatkan sebagai asisten telaa
 7. **Refleksi AI:**  
    Saran AI mengenai penanganan *safe index insertion* menggunakan fungsi `.clamp()` terbukti sangat membantu stabilitas aplikasi. Di sisi lain, rekomendasi AI untuk memasang dependensi state management eksternal harus diverifikasi dan ditolak demi menjaga kode tetap ringkas, bersih, dan tepat sasaran.
 8. **Testing:**  
-   Pengujian komprehensif membuktikan bahwa seluruh fungsi CRUD dasar, validasi form, sorting, pencarian case-insensitive, dan mekanisme undo berjalan tanpa kendala teknis (10/10 skenario pengujian berstatus lulus).
+   Pengujian mandiri dan otomatis berhasil memverifikasi seluruh fungsionalitas CRUD dan tantangan dengan status 100% lulus.
