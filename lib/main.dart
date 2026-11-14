@@ -14,7 +14,6 @@ class MahasiswaPage extends StatefulWidget {
 
 class _MahasiswaPageState extends State<MahasiswaPage> {
   // TAHAP 1: Inisialisasi data sementara di RAM.
-  // Modifikasi mandiri: Menambahkan record mahasiswa baru (Tegar Rifa'i, NIM: 240111014).
   final List<Map<String, String>> mahasiswa = [
     {'id': '1', 'nim': '2026001', 'nama': 'Andi', 'prodi': 'Informatika'},
     {'id': '2', 'nim': '2026002', 'nama': 'Siti', 'prodi': 'Informatika'},
@@ -26,10 +25,28 @@ class _MahasiswaPageState extends State<MahasiswaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Praktikum 7 - Pemrograman Mobile')),
-      body: Center(
-        child: Text(
-          'Tahap 1: jumlah data awal = ${mahasiswa.length}',
-        ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Text('Data tersimpan: ${mahasiswa.length}'),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: mahasiswa.length,
+              itemBuilder: (context, index) {
+                final item = mahasiswa[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(item['nama']!),
+                    // Modifikasi mandiri: menampilkan prodi sebelum NIM
+                    subtitle: Text('${item['prodi']} | ${item['nim']}'),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
